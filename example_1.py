@@ -98,10 +98,13 @@ class PlottingDataMonitor(QMainWindow):
     def create_plot(self):
         plot = Qwt.QwtPlot(self)
         plot.setCanvasBackground(Qt.Qt.black)
+        # plot.plotLayout().setAlignCanvasToScales(True)
+        # plot.insertLegend(Qwt.QwtLegend(), Qwt.QwtPlot.BottomLegend)
         plot.setAxisTitle(Qwt.QwtPlot.xBottom, 'Time')
         #plot.setAxisScale(Qwt.QwtPlot.xBottom, 0, 10, 1)
         plot.setAxisTitle(Qwt.QwtPlot.yLeft, 'voltage')
         #plot.setAxisScale(Qwt.QwtPlot.yLeft, 0, 30, 5)
+        plot.setFixedHeight(400)
         plot.replot()
 
         self.zoomer = Qwt.QwtPlotZoomer(plot.canvas())
@@ -121,7 +124,7 @@ class PlottingDataMonitor(QMainWindow):
         
         curve[0] =  Qwt.QwtPlotCurve('')
         curve[0].setRenderHint(Qwt.QwtPlotItem.RenderAntialiased)
-        pen[0].setWidth(2)
+        pen[0].setWidth(1)
         curve[0].setPen(pen[0])
         curve[0].attach(plot)
 
@@ -148,6 +151,7 @@ class PlottingDataMonitor(QMainWindow):
         plot_layout.addWidget(self.plot)
         plot_groupbox = QGroupBox('Plot')
         plot_groupbox.setLayout(plot_layout)
+        plot_groupbox.resize(700,700)
         
         # Main frame and layout
         self.main_frame = QWidget()
@@ -190,7 +194,7 @@ class PlottingDataMonitor(QMainWindow):
         self.dmm_monitor.start()
 
         self.connect(self.timer, SIGNAL('timeout()'), self.on_timer)
-        self.timer.start(1000)
+        self.timer.start(10)
 
         self.status_text.setText('Monitor running')
     
@@ -232,20 +236,21 @@ class PlottingDataMonitor(QMainWindow):
         	# self.y[0] = random.random()
 	        # self.curve[0].setData(self.x,self.y)
 
-			self.temperature_samples.append((float(self.data_q[-1][1]),float(self.data_q[-1][0].split(' ')[0])))
-			xdata = [s[0] for s in self.temperature_samples]
-			ydata = [s[1] for s in self.temperature_samples]
-			self.plot.setAxisScale(Qwt.QwtPlot.xBottom,xdata[0],max(20,xdata[-1]))
-			# self.plot.setAxisScale(Qwt.QwtPlot.xBottom, xdata[0], max(20, xdata[-1]))
-			self.curve[0].setData(xdata, ydata)
-			#self.plot.setAxisScale(Qwt.QwtPlot.xBottom, float(self.data_q[-1][1]), float(self.data_q[-1][0].split(' ')[0]) )        
-
-			self.plot.replot()
+            self.temperature_samples.append((float(self.data_q[-1][1]),float(self.data_q[-1][0].split(' ')[0])))
+            xdata = [s[0] for s in self.temperature_samples]
+            ydata = [s[1] for s in self.temperature_samples]
+            self.plot.setAxisScale(Qwt.QwtPlot.xBottom,min(xdata[0],xdata[-1]+20),min(xdata[-1]+20))
+            
+            # self.plot.setAxisScale(Qwt.QwtPlot.xBottom, xdata[0], max(20, xdata[-1]))
+            self.curve[0].setData(xdata, ydata)
+            #self.plot.setAxisScale(Qwt.QwtPlot.xBottom, float(self.data_q[-1][1]), float(self.data_q[-1][0].split(' ')[0]) )        
+            self.plot.replot()
 
 	
 def main():
     app = QApplication(sys.argv)
     form = PlottingDataMonitor()
+    form.resize(800, 800)
     form.show()
     app.exec_()
 

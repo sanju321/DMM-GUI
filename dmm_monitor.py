@@ -50,6 +50,8 @@ class DmmMonitorThread(threading.Thread):
         self.serial_port.write("\n")
         time.sleep(0.4)
         self.serial_port.flushInput()
+        self.serial_port.write("RATE F\n")
+        self.serial_port.flushInput()
 
         self.serial_port.write(self.measure_cmd)
         ip = self.serial_port.readline()
@@ -93,10 +95,10 @@ class DmmMonitorThread(threading.Thread):
         while self.alive.isSet():
             
             print time.time()
-            time.sleep(0.01)
+            time.sleep(0.005)
             self.serial_port.flushInput()
             print "going to read value"
-            self.serial_port.write("MEAS1?\n")#for dc voltage meter measurement
+            self.serial_port.write("VAL1?\n")#for dc voltage meter measurement
             dmm_output = self.serial_port.readline()
 
             print "dmm_output  ",dmm_output
