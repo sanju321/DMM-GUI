@@ -166,37 +166,41 @@ class PlottingDataMonitor(QMainWindow):
 
     
     def OnStart(self):
-    	self.button_Connect.setEnabled(False)
-        self.button_Disconnect.setEnabled(True)
-        self.measure_input=''
-        self.temperature_samples=[]
-        if not self.measure_voltage.isChecked():
-        	self.measure_voltage.setEnabled(False)
-        else:
-        	self.measure_input="voltage"	
-    	
-    	if not self.measure_current.isChecked():
-        	self.measure_current.setEnabled(False)
-        else:
-        	self.measure_input="current"	
-        
-        if not self.measure_resistance.isChecked():
-        	self.measure_resistance.setEnabled(False)
-        else:
-        	self.measure_input="resistance"
+		self.button_Connect.setEnabled(False)
+		self.button_Disconnect.setEnabled(True)
+		self.measure_input=''
+		self.temperature_samples=[]
+		if not self.measure_voltage.isChecked():
+			self.measure_voltage.setEnabled(False)
+		else:
+			self.measure_input="voltage"	
 
-        self.monitor_active = True
-        self.plot.setAxisTitle(Qwt.QwtPlot.yLeft, self.measure_input)
-        self.data_q      =  []
-        self.error_q     =  []
-        self.dmm_monitor =  DmmMonitorThread(self.data_q,self.error_q,self.measure_input)
-        print self.dmm_monitor
-        self.dmm_monitor.start()
+		if not self.measure_current.isChecked():
+			self.measure_current.setEnabled(False)
+		else:
+			self.measure_input="current"	
 
-        self.connect(self.timer, SIGNAL('timeout()'), self.on_timer)
-        self.timer.start(10)
+		if not self.measure_resistance.isChecked():
+			self.measure_resistance.setEnabled(False)
+		else:
+			self.measure_input="resistance"
 
-        self.status_text.setText('Monitor running')
+		self.monitor_active = True
+		self.plot.setAxisTitle(Qwt.QwtPlot.yLeft, self.measure_input)
+		self.data_q      =  []
+		self.error_q     =  []
+		self.dmm_monitor =  DmmMonitorThread(self.data_q,self.error_q,self.measure_input)
+		print self.dmm_monitor
+		dmm_connect_succ=self.dmm_monitor.start()
+		print "dmm_connect_succ ",dmm_connect_succ
+		if dmm_connect_succ:
+
+		    self.connect(self.timer, SIGNAL('timeout()'), self.on_timer)
+		    self.timer.start(10)
+
+		    self.status_text.setText('Monitor running')
+		else:
+			print "DMM NOT CONNECTED "
     
     def OnStop(self):
     	self.button_Connect.setEnabled(True)

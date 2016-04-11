@@ -84,32 +84,35 @@ class DmmMonitorThread(threading.Thread):
                     nothing = 1
         except Exception as e:
             self.error_q.append(e.message)
-            return
+            return False
         print self.serial_port
-        if not self.DMM_capture_init():
-            return
+        if self.serial_port!=None:
+            if not self.DMM_capture_init():
+                return False
 
-        # Restart the clock
-        startTime = time.time()
-        
-        while self.alive.isSet():
+            # Restart the clock
+            startTime = time.time()
             
-            print time.time()
-            time.sleep(0.005)
-            self.serial_port.flushInput()
-            print "going to read value"
-            self.serial_port.write("VAL1?\n")#for dc voltage meter measurement
-            dmm_output = self.serial_port.readline()
+            while self.alive.isSet():
+                
+                print time.time()
+                time.sleep(0.005)
+                self.serial_port.flushInput()
+                print "going to read value"
+                self.serial_port.write("VAL1?\n")#for dc voltage meter measurement
+                dmm_output = self.serial_port.readline()
 
-            print "dmm_output  ",dmm_output
-            timestamp = time.time() - startTime
-            print "timestamp   ",timestamp
-            #timestamp = time.clock()
-            self.data_q.append((dmm_output,timestamp))
-            self.serial_port.flushInput()
-        # clean up
-        if self.serial_port:
-            self.serial_port.close()
+                print "dmm_output  ",dmm_output
+                timestamp = time.time() - startTime
+                print "timestamp   ",timestamp
+                #timestamp = time.clock()
+                self.data_q.append((dmm_output,timestamp))
+                self.serial_port.flushInput()
+            # clean up
+            if self.serial_port:
+                self.serial_port.close()
+        else:
+            print "DMM serial Port Not connected "
 
     def join(self, timeout=None):
         self.alive.clear()
