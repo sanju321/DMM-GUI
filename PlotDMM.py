@@ -32,7 +32,7 @@ class Ui_Dialog(QDialog):
     def showDialog(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file', '/home')
 
-        logger.info("selected file name ",fname)
+        logger.info("selected file name "+str(fname))
         try:
             f = open(fname, 'r')
             self.temperature_samples=[]
@@ -48,7 +48,7 @@ class Ui_Dialog(QDialog):
 
                     self.pl.setData(xdata, ydata)
         except Exception as e:
-            logger.info("Error in selecting File ",e)
+            logger.info("Error in selecting File "+str(e))
 
 
 class PlottingDataMonitor(QMainWindow):
@@ -158,7 +158,7 @@ class PlottingDataMonitor(QMainWindow):
             # else:
             #     print "DMM NOT CONNECTED "
         except Exception as e:
-            logger.info("Error in connecting with DMM or reading from DMM ",e)
+            logger.info("Error in connecting with DMM or reading from DMM "+str(e))
 
 
     def OnStop(self):
@@ -192,7 +192,7 @@ class PlottingDataMonitor(QMainWindow):
                 ydata = [s[1] for s in self.temperature_samples]
                 self.pl.setData(xdata,ydata)
         except Exception as e:
-            logger.info("Error in plotting Data from Dmm Thread ",e)
+            logger.info("Error in plotting Data from Dmm Thread "+str(e))
 
 
 def main():
