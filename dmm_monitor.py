@@ -88,7 +88,7 @@ class DmmMonitorThread(threading.Thread):
 
                 try:
                     self.serial_port = serial.Serial(port='/dev/ttyUSB'+str(i), baudrate=9600,timeout = 10)
-                    logger.info("DMM_serial_comm : ",'/dev/ttyUSB'+str(i))
+                    logger.info("DMM_serial_comm : "+'/dev/ttyUSB'+str(i))
                     break
                 except:
                     nothing = 1
@@ -96,7 +96,7 @@ class DmmMonitorThread(threading.Thread):
             self.error_q.append(e.message)
             return False
 
-        logger.info("connected serial port for dmm  ",self.serial_port)
+        logger.info("connected serial port for dmm  "+str(self.serial_port))
 
         if self.serial_port!=None:
             if not self.DMM_capture_init():
