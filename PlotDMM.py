@@ -191,18 +191,21 @@ class PlottingDataMonitor(QMainWindow):
         """
         try:
             if len(self.data_q)!=0:
-                print "value of y ",self.data_q[-1][0].split(' ')[0]
+                # print "value of y ",self.data_q[-1][0].split(' ')[0]
                 self.temperature_samples.append((float(self.data_q[-1][1]),float(self.data_q[-1][0].split(' ')[0])))
                 xdata = [s[0] for s in self.temperature_samples]
                 ydata = [s[1] for s in self.temperature_samples]
 
                 avg = (sum(ydata))/ (len(ydata))
-                avg=format(avg, '.10f')
+
                 if self.measure_input=="voltage":
+                    avg = format(avg, '.10f')
                     self.average_value.setText(str(avg)+" V")
                 if self.measure_input == "current":
+                    avg = format(avg, '.10f')
                     self.average_value.setText(str(avg)+" A")
                 if self.measure_input == "resistance":
+                    avg = format(avg, '.10f')
                     self.average_value.setText(str(avg)+" Ohms")
 
                 self.pl.setData(xdata,ydata)
