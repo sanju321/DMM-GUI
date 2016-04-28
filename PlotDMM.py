@@ -191,7 +191,6 @@ class PlottingDataMonitor(QMainWindow):
         """
         try:
             if len(self.data_q)!=0:
-                # print "value of y ",self.data_q[-1][0].split(' ')[0]
                 self.temperature_samples.append((float(self.data_q[-1][1]),float(self.data_q[-1][0].split(' ')[0])))
                 xdata = [s[0] for s in self.temperature_samples]
                 ydata = [s[1] for s in self.temperature_samples]
