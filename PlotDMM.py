@@ -56,7 +56,6 @@ class PlottingDataMonitor(QMainWindow):
         super(PlottingDataMonitor, self).__init__(parent)
 
         self.monitor_active = False
-
         self.dmm_monitor=None
         self.temperature_samples = []
         self.timer = QTimer()
@@ -73,7 +72,10 @@ class PlottingDataMonitor(QMainWindow):
         self.Start_btn = QPushButton('Start')
         self.Stop_btn=QPushButton('Stop')
         self.analyze_btn=QPushButton('Analyzes')
-
+        self.average = QLabel("Average: ")
+        self.average_value=QLabel("")
+        self.newfont = QFont("Times", 15, QFont.Bold)
+        self.average_value.setFont(self.newfont)
         self.Stop_btn.setEnabled(False)
         self.measure_voltage=QRadioButton('voltage')
         self.measure_current=QRadioButton('current')
@@ -82,6 +84,7 @@ class PlottingDataMonitor(QMainWindow):
         self.plot = pg.PlotWidget()
         self.pl = self.plot.plot()
         self.pl.setPen((200,200,100))
+        self.plot.showGrid(x=None, y=1, alpha=0.5)
 
         ## Create a grid layout to manage the widgets size and position
         self.layout = QGridLayout()
@@ -98,6 +101,8 @@ class PlottingDataMonitor(QMainWindow):
         self.layout.addWidget(self.measure_current, 2, 2)  # current
         self.layout.addWidget(self.measure_resistance, 2, 3)  # resistance
         self.layout.addWidget(self.plot, 0, 0, 2, 0)  # plot
+        self.layout.addWidget(self.average,3,3)
+        self.layout.addWidget(self.average_value,3,4)
 
         self.setCentralWidget(self.w)
 
@@ -184,12 +189,22 @@ class PlottingDataMonitor(QMainWindow):
         """ Executed periodically when the monitor update timer
             is fired.
         """
-
         try:
             if len(self.data_q)!=0:
+                print "value of y ",self.data_q[-1][0].split(' ')[0]
                 self.temperature_samples.append((float(self.data_q[-1][1]),float(self.data_q[-1][0].split(' ')[0])))
                 xdata = [s[0] for s in self.temperature_samples]
                 ydata = [s[1] for s in self.temperature_samples]
+
+                avg = (sum(ydata))/ (len(ydata))
+                avg=format(avg, '.10f')
+                if self.measure_input=="voltage":
+                    self.average_value.setText(str(avg)+" V")
+                if self.measure_input == "current":
+                    self.average_value.setText(str(avg)+" A")
+                if self.measure_input == "resistance":
+                    self.average_value.setText(str(avg)+" Ohms")
+
                 self.pl.setData(xdata,ydata)
         except Exception as e:
             logger.info("Error in plotting Data from Dmm Thread "+str(e))
