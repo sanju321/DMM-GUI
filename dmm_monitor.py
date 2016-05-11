@@ -6,6 +6,11 @@ handler = logging.FileHandler('DMMLOG.log')
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+SERIAL_PORT='/dev/ttyUSB'#ubuntu
+SERIAL_PORT='COM'#windows
+
+
 class DmmMonitorThread(threading.Thread):
     """ A thread for monitoring a DMMUSB port. The DMMUSB port is 
         opened when the thread is started.
@@ -79,7 +84,7 @@ class DmmMonitorThread(threading.Thread):
             return False
 
     def run(self):
-        
+        global SERIAL_PORT
         try:
             if self.serial_port: 
                 self.serial_port.close()
@@ -87,8 +92,8 @@ class DmmMonitorThread(threading.Thread):
                 print "value of i",i
 
                 try:
-                    self.serial_port = serial.Serial(port='/dev/ttyUSB'+str(i), baudrate=9600,timeout = 10)
-                    logger.info("DMM_serial_comm : "+'/dev/ttyUSB'+str(i))
+                    self.serial_port = serial.Serial(port=SERIAL_PORT+str(i), baudrate=9600,timeout = 10)
+                    logger.info("DMM_serial_comm : "+SERIAL_PORT+str(i))
                     break
                 except:
                     nothing = 1

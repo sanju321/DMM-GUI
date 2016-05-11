@@ -2,6 +2,7 @@ __author__ = 'azoi'
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from dmm_monitor import DmmMonitorThread
+from collections import deque
 import pyqtgraph as pg
 import sys,time
 import logging
@@ -11,6 +12,8 @@ handler = logging.FileHandler('DMMLOG.log')
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+
 
 class Ui_Dialog(QDialog):
     def __init__(self):
@@ -147,6 +150,9 @@ class PlottingDataMonitor(QMainWindow):
         self.data_q      =  []
         self.error_q     =  []
 
+        self.avg_cache = deque()
+        self.avg_window_size=100
+
         try:
             #starting Dmm Thread
             self.dmm_monitor =  DmmMonitorThread(self.data_q,self.error_q,self.measure_input)
@@ -192,10 +198,15 @@ class PlottingDataMonitor(QMainWindow):
         try:
             if len(self.data_q)!=0:
                 self.temperature_samples.append((float(self.data_q[-1][1]),float(self.data_q[-1][0].split(' ')[0])))
-                xdata = [s[0] for s in self.temperature_samples]
-                ydata = [s[1] for s in self.temperature_samples]
+                xdata = [s[0] for s in self.temperature_samples]#time
+                ydata = [s[1] for s in self.temperature_samples]#V/A/Ohms
 
-                avg = (sum(ydata))/ (len(ydata))
+                self.avg_cache.append(float(self.data_q[-1][0].split(' ')[0]))#append till 100 samples
+                if len(self.avg_cache)<self.avg_window_size:#checks len of cached sample is less than 100 then take avg of whole window
+                	avg = (sum(self.avg_cache))/ (len(self.avg_cache))
+                else:#if len of cached samples exceeds 100
+                	self.avg_cache.popleft()#pop out left element from avg_cache deque and move window ahead
+                	avg = (sum(self.avg_cache))/ (len(self.avg_cache))
 
                 if self.measure_input=="voltage":
                     avg = format(avg, '.10f')
