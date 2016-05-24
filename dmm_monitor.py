@@ -8,7 +8,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 SERIAL_PORT='/dev/ttyUSB'#ubuntu
-SERIAL_PORT='COM'#windows
+#SERIAL_PORT='COM'#windows
 
 
 class DmmMonitorThread(threading.Thread):
@@ -61,7 +61,7 @@ class DmmMonitorThread(threading.Thread):
         self.serial_port.write("\n")
         time.sleep(0.4)
         self.serial_port.flushInput()
-        self.serial_port.write("RATE F\n")
+        self.serial_port.write("RATE S\n")
         ip = self.serial_port.readline()
         if ip == '=>\r\n':
             self.serial_port.flushInput()
@@ -84,46 +84,46 @@ class DmmMonitorThread(threading.Thread):
             return False
 
     def run(self):
-        global SERIAL_PORT
-        try:
-            if self.serial_port: 
-                self.serial_port.close()
-            for i in range(0,50):
-                print "value of i",i
+		global SERIAL_PORT
+		try:
+		    if self.serial_port: 
+		        self.serial_port.close()
+		    for i in range(0,50):
+				print "value of i",i
 
-                try:
-                    self.serial_port = serial.Serial(port=SERIAL_PORT+str(i), baudrate=9600,timeout = 10)
-                    logger.info("DMM_serial_comm : "+SERIAL_PORT+str(i))
-                    break
-                except:
-                    nothing = 1
-        except Exception as e:
-            self.error_q.append(e.message)
-            return False
+				try:
+					self.serial_port = serial.Serial(port=SERIAL_PORT+str(i), baudrate=9600,timeout = 10)
+					logger.info("DMM_serial_comm : "+SERIAL_PORT+str(i))
+					break
+				except:
+				    nothing = 1
+		except Exception as e:
+		    self.error_q.append(e.message)
+		    return False
 
-        logger.info("connected serial port for dmm  "+str(self.serial_port))
+		logger.info("connected serial port for dmm  "+str(self.serial_port))
 
-        if self.serial_port!=None:
-            if not self.DMM_capture_init():
-                return False
+		if self.serial_port!=None:
+		    if not self.DMM_capture_init():
+		        return False
 
-            # Restart the clock
-            startTime = time.time()
-            logger.debug("reading data")
-            while self.alive.isSet():
-                time.sleep(0.005)
-                self.serial_port.flushInput()
+		    # Restart the clock
+		    startTime = time.time()
+		    logger.debug("reading data")
+		    while self.alive.isSet():
+		        time.sleep(0.005)
+		        self.serial_port.flushInput()
 
-                self.serial_port.write("VAL1?\n")#for dc voltage meter measurement
-                dmm_output = self.serial_port.readline()
-                timestamp = time.time() - startTime
-                self.data_q.append((dmm_output,timestamp))
-                self.serial_port.flushInput()
-            # clean up
-            if self.serial_port:
-                self.serial_port.close()
-        else:
-            logger.info("DMM serial Port Not connected ")
+		        self.serial_port.write("VAL1?\n")#for dc voltage meter measurement
+		        dmm_output = self.serial_port.readline()
+		        timestamp = time.time() - startTime
+		        self.data_q.append((dmm_output,timestamp))
+		        self.serial_port.flushInput()
+		    # clean up
+		    if self.serial_port:
+		        self.serial_port.close()
+		else:
+		    logger.info("DMM serial Port Not connected ")
 
     def join(self, timeout=None):
         '''wait for new thread to start

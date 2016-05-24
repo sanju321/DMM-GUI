@@ -163,7 +163,7 @@ class PlottingDataMonitor(QMainWindow):
             # if dmm_connect_succ:
 
             self.connect(self.timer, SIGNAL('timeout()'), self.on_timer)
-            self.timer.start(50)#for plotting 20 samples per second every 50 ms we have to call ontimer()50 ms *20 samples=1000==1sec
+            self.timer.start(60000)#for plotting 4 samples per minute every 60s we have to call ontimer()50 ms *20 samples=1000==1sec
 
             self.status_text.setText('Monitor running')
             # else:
@@ -202,6 +202,7 @@ class PlottingDataMonitor(QMainWindow):
                 ydata = [s[1] for s in self.temperature_samples]#V/A/Ohms
 
                 self.avg_cache.append(float(self.data_q[-1][0].split(' ')[0]))#append till 100 samples
+                
                 if len(self.avg_cache)<self.avg_window_size:#checks len of cached sample is less than 100 then take avg of whole window
                 	avg = (sum(self.avg_cache))/ (len(self.avg_cache))
                 else:#if len of cached samples exceeds 100
