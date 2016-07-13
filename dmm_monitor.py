@@ -8,7 +8,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 SERIAL_PORT='/dev/ttyUSB'#ubuntu
-#SERIAL_PORT='COM'#windows
+# SERIAL_PORT='COM'#windows
 
 
 class DmmMonitorThread(threading.Thread):
@@ -48,6 +48,10 @@ class DmmMonitorThread(threading.Thread):
         if self.measure_input=="resistance":
             self.measure_cmd="OHMS\n"
         
+        if self.measure_input=="frequency":
+            self.measure_cmd="FREQ\n"
+
+        
 
         self.alive    = threading.Event()
         self.alive.set()
@@ -61,7 +65,7 @@ class DmmMonitorThread(threading.Thread):
         self.serial_port.write("\n")
         time.sleep(0.4)
         self.serial_port.flushInput()
-        self.serial_port.write("RATE S\n")
+        self.serial_port.write("RATE F\n")
         ip = self.serial_port.readline()
         if ip == '=>\r\n':
             self.serial_port.flushInput()

@@ -83,6 +83,8 @@ class PlottingDataMonitor(QMainWindow):
         self.measure_voltage=QRadioButton('voltage')
         self.measure_current=QRadioButton('current')
         self.measure_resistance=QRadioButton('resistance')
+        self.measure_frequency=QRadioButton('frequency')
+
         self.measure_voltage.setChecked(True)
         self.plot = pg.PlotWidget()
         self.pl = self.plot.plot()
@@ -103,6 +105,8 @@ class PlottingDataMonitor(QMainWindow):
         self.layout.addWidget(self.measure_voltage, 2, 1)  # voltage
         self.layout.addWidget(self.measure_current, 2, 2)  # current
         self.layout.addWidget(self.measure_resistance, 2, 3)  # resistance
+        self.layout.addWidget(self.measure_frequency, 2, 4)  # frequency
+
         self.layout.addWidget(self.plot, 0, 0, 2, 0)  # plot
         self.layout.addWidget(self.average,3,3)
         self.layout.addWidget(self.average_value,3,4)
@@ -143,6 +147,13 @@ class PlottingDataMonitor(QMainWindow):
             self.measure_input='resistance'
             p1.setLabel('left',text='resistance',units='ohms')
 
+        if not self.measure_frequency.isChecked():
+            self.measure_frequency.setEnabled(False)
+        else:
+            self.measure_input='frequency'
+            p1.setLabel('left',text='frequency',units='Hz')
+
+
         p1.setLabel('bottom',text='Time',units='sec')
 
         self.monitor_active = True
@@ -163,7 +174,7 @@ class PlottingDataMonitor(QMainWindow):
             # if dmm_connect_succ:
 
             self.connect(self.timer, SIGNAL('timeout()'), self.on_timer)
-            self.timer.start(60000)#for plotting 4 samples per minute every 60s we have to call ontimer()50 ms *20 samples=1000==1sec
+            self.timer.start(50)#for plotting 4 samples per minute every 60s we have to call ontimer()50 ms *20 samples=1000==1sec
 
             self.status_text.setText('Monitor running')
             # else:
@@ -183,6 +194,9 @@ class PlottingDataMonitor(QMainWindow):
             self.measure_current.setEnabled(True)
         if not self.measure_resistance.isChecked():
             self.measure_resistance.setEnabled(True)
+        if not self.measure_frequency.isChecked():
+            self.measure_frequency.setEnabled(True)
+
         self.monitor_active = False
         self.status_text.setText('Monitor idle')
 
@@ -218,6 +232,9 @@ class PlottingDataMonitor(QMainWindow):
                 if self.measure_input == "resistance":
                     avg = format(avg, '.10f')
                     self.average_value.setText(str(avg)+" Ohms")
+                if self.measure_input == "frequency":
+                    avg = format(avg, '.10f')
+                    self.average_value.setText(str(avg)+" Hz")    
 
                 self.pl.setData(xdata,ydata)
         except Exception as e:
